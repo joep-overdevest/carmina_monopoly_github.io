@@ -1,274 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Monopoly Kaarten — Random</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monopoly Kaarten</title>
   <style>
-    :root{
-      --bg:#f8f7f3;
-      --card:#ffffff;
-      --accent:#1f7a8c;
-      --muted:#666;
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f7f6f3;
+      text-align: center;
+      padding: 40px;
     }
-    body{
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(180deg,var(--bg),#e9e7e3);
-      margin:0;
-      padding:20px;
-      display:flex;
-      min-height:100vh;
-      align-items:center;
-      justify-content:center;
+    h1 {
+      color: #2d2d2d;
     }
-    .container{
-      width:100%;
-      max-width:760px;
-      background:var(--card);
-      border-radius:14px;
-      box-shadow:0 10px 30px rgba(20,20,20,0.08);
-      padding:28px;
+    #card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      margin: 30px auto;
+      font-size: 1.2em;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    h1{margin:0 0 6px 0;font-size:20px}
-    p.lead{margin:0 0 18px 0;color:var(--muted)}
-    .deck-buttons{display:flex;gap:10px;margin-bottom:18px}
-    button{
-      border:0;padding:10px 14px;border-radius:10px;background:var(--accent);color:white;
-      cursor:pointer;font-weight:600;
-      box-shadow:0 6px 12px rgba(31,122,140,0.18);
+    button {
+      background: #0078d7;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      margin: 10px;
+      transition: background 0.2s;
     }
-    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(31,122,140,0.12)}
-    .card{
-      background:linear-gradient(180deg,#fff,#faf9f7);
-      border-radius:12px;padding:22px;min-height:120px;
-      display:flex;align-items:center;justify-content:center;text-align:center;
-      font-size:18px;color:#222;box-shadow:0 6px 18px rgba(30,30,30,0.05);
-      margin-bottom:14px;
+    button:hover {
+      background: #005ea6;
     }
-    .meta{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .small{font-size:13px;color:var(--muted)}
-    .actions{display:flex;gap:10px;margin-top:10px}
-    .qr-wrap{display:flex;gap:14px;align-items:center;margin-top:12px}
-    .qr-box{padding:8px;background:#fff;border-radius:8px;border:1px dashed #eee}
-    footer.small{margin-top:14px;color:var(--muted);font-size:12px}
-    a.link{color:var(--accent);text-decoration:none}
-    @media (max-width:520px){
-      .qr-wrap{flex-direction:column;align-items:flex-start}
+    footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Monopoly: Toevalskaarten (Random)</h1>
-    <p class="lead">Open de site met ?deck=chance of ?deck=community of klik een knop. Druk op "Nieuwe kaart" voor een andere kaart.</p>
-
-    <div class="deck-buttons">
-      <button id="btnChance">Kanskaarten</button>
-      <button id="btnCommunity" class="ghost">Algemeen Fonds</button>
-      <button id="btnShare" class="ghost" title="Laat de huidige URL zien">Kopieer URL</button>
-    </div>
-
-    <div class="card" id="cardBox">Laad kaart...</div>
-
-    <div class="meta">
-      <div class="small" id="deckName">Deck: -</div>
-      <div class="small">Kaart nummer: <span id="cardIndex">-</span></div>
-    </div>
-
-    <div class="actions">
-      <button id="btnNew">Nieuwe kaart</button>
-      <button id="btnShowQR" class="ghost">Toon QR-code</button>
-      <button id="btnEdit" class="ghost">Bewerk kaarten</button>
-    </div>
-
-    <div class="qr-wrap" id="qrWrap" style="display:none;">
-      <div class="qr-box" id="qrBox"></div>
-      <div>
-        <div class="small">Scan met telefoon of gebruik deze link:</div>
-        <div style="word-break:break-all"><a id="shareLink" class="link" href="#">-</a></div>
-      </div>
-    </div>
-
-    <div id="editor" style="display:none;margin-top:14px;">
-      <p class="small">Bewerk de kaarten (één kaart per regel). Klik <strong>Bewaar</strong> om op te slaan in je browser (localStorage) — dit verandert niet het bestand op de server. Gebruik dit als tijdelijk bewerkpaneel.</p>
-      <div style="display:flex;gap:8px">
-        <textarea id="editArea" style="flex:1;min-height:160px;padding:10px;border-radius:8px;border:1px solid #ddd"></textarea>
-      </div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button id="btnSaveLocal">Bewaar</button>
-        <button id="btnLoadLocal" class="ghost">Laad opgeslagen</button>
-        <button id="btnResetLocal" class="ghost">Reset opslaan</button>
-      </div>
-    </div>
-
-    <footer class="small">Tip: zet op je bord twee QR-codes naar:
-      <br><code>https://<i>jouwhost</i>/?deck=chance</code> en <code>https://<i>jouwhost</i>/?deck=community</code>
-    </footer>
+  <h1 id="deckName">Monopoly Kaarten</h1>
+  <div id="card">Klik op "Nieuwe kaart" om te beginnen!</div>
+  <div>
+    <button id="btnNew">Nieuwe kaart</button>
   </div>
-
-  <!-- QR code lib (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <footer>
+    <p>Gebruik de juiste QR-code voor Kans of Algemeen Fonds.</p>
+  </footer>
 
   <script>
-  /*************************************************************************
-   * Hier pas je (eenvoudig) je kaarten aan: vervang de voorbeeldregels
-   * met jouw teksten. Elke entry is een string. Gebruik backticks of
-   * normale quotes. Verdeel KANS en COMMUNITY.
-   *************************************************************************/
-  const defaultChance = [
-    "Betaal €50 boete voor te hard rijden.",
-    "Ga 3 vakjes vooruit.",
-    "Ga naar de gevangenis. Stop onmiddellijk hier.",
-    "Ontvang €100 van de bank.",
-    "Ruil van plaats met een speler naar keuze.",
-    "Betaal €20 ziekenhuiskosten.",
-    "Je verjaardag: iedere speler betaalt jou €10."
-  ];
+    // 🎲 Hier vul jij jouw eigen kaarten in ↓
+    const decks = {
+      chance: [
+        "Ga direct naar de gevangenis. Ga niet langs Start, ontvang geen €200.",
+        "Betaal €50 boete of neem een kanskaart om te proberen te ontkomen.",
+        "Ga terug naar Dorpsstraat.",
+        "Verplaats je pion naar Start en ontvang €200.",
+        "Je hebt een kruiswoordpuzzelwedstrijd gewonnen — ontvang €100.",
+        "Je mag naar het dichtstbijzijnde nutsbedrijf. Betaal tweemaal het bedrag dat met de dobbelstenen wordt gegooid."
+      ],
+      community: [
+        "Je verjaardagsfeest! Iedereen betaalt jou €10.",
+        "Betaal je dokterskosten van €50.",
+        "Ontvang rente van je beleggingen: €25.",
+        "Je hebt je belasting te veel betaald — ontvang €20 terug.",
+        "Ga naar Start en ontvang €200.",
+        "Betaal €100 schoolgeld."
+      ]
+    };
 
-  const defaultCommunity = [
-    "Ontvang €200 voordeel — dividend uitgekeerd.",
-    "Betaal schoolgeld €150.",
-    "Je krijgt een erfenis: ontvang €100.",
-    "Betaaldocument kwijt: betaal €50 boete.",
-    "Ziektekosten: ontvang een vergoeding van €75.",
-    "Verhuur inkomsten: ontvang €25 per huis."
-  ];
+    // ⚙️ Kies deck op basis van URL (bijv. ?deck=chance)
+    const params = new URLSearchParams(window.location.search);
+    const currentDeck = params.get("deck") === "community" ? "community" : "chance";
 
-  /* ------------- code (niet nodig om te veranderen) ------------- */
+    // Zet de titel op basis van deck
+    const deckNameEl = document.getElementById("deckName");
+    deckNameEl.textContent = currentDeck === "chance" ? "Kanskaart" : "Algemeen Fonds";
 
-  // Helper: haal deck parameter
-  function getParam(name, url = window.location.href){
-    name = name.replace(/[\\[\\]]/g, "\\$&");
-    const regex = new RegExp("[?&]"+name+"(=([^&#]*)|&|#|$)");
-    const results = regex.exec(url);
-    if(!results) return null;
-    if(!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-  }
+    // Functie: laat een random kaart zien
+    const cardEl = document.getElementById("card");
+    function showRandomCard() {
+      const cards = decks[currentDeck];
+      const randomIndex = Math.floor(Math.random() * cards.length);
+      cardEl.textContent = cards[randomIndex];
+    }
 
-  // Decks (we'll allow localStorage overrides)
-  function loadCards(){
-    // first try localStorage override
-    const savedChance = localStorage.getItem("monopoly_chance");
-    const savedCommunity = localStorage.getItem("monopoly_community");
-    const chance = savedChance ? savedChance.split("\\n").map(s => s.trim()).filter(Boolean) : defaultChance.slice();
-    const community = savedCommunity ? savedCommunity.split("\\n").map(s => s.trim()).filter(Boolean) : defaultCommunity.slice();
-    return {chance, community};
-  }
+    // Eventlistener voor knop
+    document.getElementById("btnNew").addEventListener("click", showRandomCard);
 
-  let currentDeck = "chance";
-  let currentIndex = null;
-  let decks = loadCards();
-
-  const cardBox = document.getElementById("cardBox");
-  const deckNameEl = document.getElementById("deckName");
-  const cardIndexEl = document.getElementById("cardIndex");
-  const shareLinkEl = document.getElementById("shareLink");
-  const qrBox = document.getElementById("qrBox");
-  const qrWrap = document.getElementById("qrWrap");
-
-  function showCardText(text){
-    cardBox.textContent = text;
-  }
-
-  function pickRandom(deck){
-    const arr = decks[deck];
-    if(!arr || arr.length === 0) return {text:"Geen kaarten in dit deck.", index:0};
-    const idx = Math.floor(Math.random()*arr.length);
-    return {text:arr[idx], index: idx+1};
-  }
-
-  function setDeck(deck){
-    currentDeck = deck;
-    deckNameEl.textContent = "Deck: " + (deck === "chance" ? "Kanskaarten" : "Algemeen Fonds");
-    // update share link and QR
-    const url = window.location.origin + window.location.pathname + "?deck=" + encodeURIComponent(deck);
-    shareLinkEl.textContent = url;
-    shareLinkEl.href = url;
-    // clear QR UI
-    qrWrap.style.display = "none";
-    qrBox.innerHTML = "";
-    // show first random on deck switch
-    const chosen = pickRandom(deck);
-    showCardText(chosen.text);
-    cardIndexEl.textContent = chosen.index;
-  }
-
-  // Buttons
-  document.getElementById("btnChance").addEventListener("click", ()=>{ setDeck("chance"); });
-  document.getElementById("btnCommunity").addEventListener("click", ()=>{ setDeck("community"); });
-
-  document.getElementById("btnNew").addEventListener("click", ()=>{
-    const chosen = pickRandom(currentDeck);
-    // simple fade animation
-    cardBox.style.opacity = 0;
-    setTimeout(()=>{ showCardText(chosen.text); cardIndexEl.textContent = chosen.index; cardBox.style.opacity = 1; }, 180);
-  });
-
-  document.getElementById("btnShowQR").addEventListener("click", ()=>{
-    const url = window.location.origin + window.location.pathname + "?deck=" + encodeURIComponent(currentDeck);
-    qrWrap.style.display = "flex";
-    qrBox.innerHTML = "";
-    // generate QR (qrcodejs)
-    new QRCode(qrBox, {
-      text: url,
-      width: 200,
-      height: 200,
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    shareLinkEl.textContent = url;
-    shareLinkEl.href = url;
-  });
-
-  document.getElementById("btnShare").addEventListener("click", ()=>{
-    const url = window.location.origin + window.location.pathname + "?deck=" + encodeURIComponent(currentDeck);
-    navigator.clipboard?.writeText(url).then(()=>alert("URL gekopieerd naar klembord:\n" + url)).catch(()=>prompt("URL (kopieer handmatig):", url));
-  });
-
-  // Editor toggles
-  const editor = document.getElementById("editor");
-  document.getElementById("btnEdit").addEventListener("click", ()=>{
-    // show editor with current deck content
-    const area = document.getElementById("editArea");
-    const arr = decks[currentDeck];
-    area.value = arr.join("\\n");
-    editor.style.display = editor.style.display === "none" ? "block" : "none";
-  });
-
-  document.getElementById("btnSaveLocal").addEventListener("click", ()=>{
-    const txt = document.getElementById("editArea").value;
-    if(!confirm("Bewaar je wijzigingen lokaal in deze browser? Dit overschrijft eventuele eerdere lokale opslag.")) return;
-    if(currentDeck === "chance") localStorage.setItem("monopoly_chance", txt);
-    else localStorage.setItem("monopoly_community", txt);
-    decks = loadCards();
-    alert("Opgeslagen. De site gebruikt nu de opgeslagen kaarten (in jouw browser). Om het definitief op de site te zetten bewerk index.html en upload opnieuw.");
-    // refresh displayed card to reflect new deck
-    setDeck(currentDeck);
-  });
-
-  document.getElementById("btnLoadLocal").addEventListener("click", ()=>{
-    const key = currentDeck === "chance" ? "monopoly_chance" : "monopoly_community";
-    const val = localStorage.getItem(key);
-    if(!val){ alert("Geen lokaal opgeslagen kaarten gevonden."); return; }
-    document.getElementById("editArea").value = val;
-    alert("Geladen vanuit localStorage in het tekstveld.");
-  });
-
-  document.getElementById("btnResetLocal").addEventListener("click", ()=>{
-    if(!confirm("Verwijder lokale opgeslagen kaarten en gebruik de ingebouwde standaard?")) return;
-    if(currentDeck === "chance") localStorage.removeItem("monopoly_chance");
-    else localStorage.removeItem("monopoly_community");
-    decks = loadCards();
-    setDeck(currentDeck);
-    alert("Lokale opslag gereset.");
-  });
-
-  // Init: kijk of ?deck= is gezet
-  const paramDeck = getParam("deck");
-  const startDeck = (paramDeck === "community") ? "community" : "chance";
-  // Load any saved decks
-  decks = loadCards();
-  setDeck(startDeck);
+    // Toon meteen één kaart bij het laden
+    showRandomCard();
   </script>
 </body>
 </html>
